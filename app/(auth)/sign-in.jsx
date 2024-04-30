@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { signIn } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
@@ -28,6 +28,7 @@ const SignIn = () => {
       router.replace("/home");
     } catch (error) {
       Alert.alert("Error", error.message);
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
