@@ -6,13 +6,15 @@ import { images } from "../../constants";
 import SearchInput from "../../components/SearchInput";
 import Trending from "../../components/Trending";
 import EmptyState from "../../components/EmptyState";
-import { getAllPosts } from "../../lib/appwrite";
+import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
 import { useAppwrite } from "../../lib/useAppwrite";
 import VideoCard from "../../components/VideoCard";
 
 const Home = () => {
   const { user } = useGlobalContext();
   const { data: posts, refetch } = useAppwrite(getAllPosts);
+  const { data: latestPosts } = useAppwrite(getLatestPosts);
+
   // console.log(posts);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const onRefresh = async () => {
@@ -51,16 +53,7 @@ const Home = () => {
               <Text className="text-gray-100 text-lg font-pregular mb-3">
                 Latest Videos
               </Text>
-              <Trending
-                posts={[
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                  { id: 4 },
-                  { id: 5 },
-                  { id: 6 },
-                ]}
-              />
+              <Trending posts={latestPosts ?? []} />
             </View>
           </View>
         )}
