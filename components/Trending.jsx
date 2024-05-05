@@ -4,9 +4,12 @@ import {
   FlatList,
   TouchableOpacity,
   ImageBackground,
+  Image,
 } from "react-native";
 import React, { useState } from "react";
 import * as Animatable from "react-native-animatable";
+import { icons } from "../constants";
+import { Video, ResizeMode } from "expo-av";
 
 const zoomIn = {
   0: {
@@ -22,19 +25,29 @@ const zoomOut = {
     scale: 1,
   },
   1: {
-    scale: 0,
+    scale: 0.9,
   },
 };
 const TrendingItem = ({ activeItem, item }) => {
+  // console.log(activeItem, item);
   const [play, setPlay] = useState(false);
   return (
     <Animatable.View
       duration={500}
-      className="mr-5"
-      animation={item.$id === activeItem ? zoomIn : zoomOut}
+      className="mr-2"
+      animation={activeItem === item.$id ? zoomIn : zoomOut}
     >
       {play ? (
-        <Text>Playing</Text>
+        <Video
+          source={{ uri: item?.video }}
+          resizeMode={ResizeMode.CONTAIN}
+          className="w-52 h-72 rounded-[35px]  mt-3 bg-white/10"
+          useNativeControls
+          shouldPlay
+          onPlaybackStatusUpdate={(status) =>
+            status.didJustFinish && setPlay(false)
+          }
+        />
       ) : (
         <TouchableOpacity
           onPress={() => setPlay(true)}
@@ -46,6 +59,11 @@ const TrendingItem = ({ activeItem, item }) => {
             className="w-52 h-72 rounded-[35px] overflow-hidden shadow-lg shadow-black/40"
             resizeMode="cover"
           />
+          <Image
+            source={icons.play}
+            className="w-12 h-12 absolute"
+            resizeMode="contain"
+          />
         </TouchableOpacity>
       )}
     </Animatable.View>
@@ -54,13 +72,22 @@ const TrendingItem = ({ activeItem, item }) => {
 
 const Trending = ({ posts }) => {
   const [activeItem, setActiveItem] = useState(posts[0]);
+  const viewableItemsChanged = ({ viewableItems }) => {
+    // console.log("viewableItems", viewableItems[0]?.item?.$id);
+    if (viewableItems.length > 0) {
+      setActiveItem(viewableItems[0]?.key);
+    }
+  };
   return (
     <FlatList
       data={posts}
       keyExtractor={(item) => item.$id}
-      renderItem={({ item, index }) => (
+      renderItem={({ item }) => (
         <TrendingItem activeItem={activeItem} item={item} />
       )}
+      onViewableItemsChanged={viewableItemsChanged}
+      viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
+      contentOffset={{ x: 170 }}
       horizontal
     />
   );
